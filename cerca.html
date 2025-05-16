@@ -11,23 +11,16 @@
             background-color: #121212;
             color: white;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
         }
         .container {
-            max-width: 900px;
-            margin-top: 100px;
-            padding: 30px;
-            background-color: #181818;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin-top: 80px;
         }
         h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             text-align: center;
             margin-bottom: 30px;
-            color: #1DB954;
         }
         .input-group {
             border-radius: 50px;
@@ -39,11 +32,9 @@
             border: none;
             padding: 20px;
             font-size: 1.2rem;
-            border-radius: 50px 0 0 50px;
-            transition: all 0.3s ease-in-out;
         }
         .form-control:focus {
-            box-shadow: 0 0 10px rgba(29, 185, 84, 0.7);
+            box-shadow: none;
             border-color: #1DB954;
         }
         .btn-primary {
@@ -52,7 +43,6 @@
             padding: 20px;
             font-size: 1.2rem;
             border-radius: 0 50px 50px 0;
-            transition: background-color 0.3s ease;
         }
         .btn-primary:hover {
             background-color: #1ed760;
@@ -63,26 +53,16 @@
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
         }
         .card img {
             border-radius: 10px;
-            transition: transform 0.3s ease;
-        }
-        .card img:hover {
-            transform: scale(1.1);
         }
         .card-body {
             padding: 15px;
         }
         .card-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #fff;
         }
         .card-text {
             font-size: 0.9rem;
@@ -92,9 +72,6 @@
             text-align: center;
             font-size: 1.2rem;
             color: #B3B3B3;
-        }
-        .input-group .form-control, .input-group .btn-primary {
-            border-radius: 50px;
         }
     </style>
 </head>
@@ -118,6 +95,59 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka9bE+M0ZTz3cdMOAGHGgqN6fyTkUMFh7rFS0VfFOS6ww8AZ9iA3kmC7q6Qb0Hiw" crossorigin="anonymous"></script>
 
 <script>
+    const clientId = "a947b01f684b4858a58ef96a45a4d33f";
+    const clientSecret = "71519124d1b74be7866ab35c09ab08dc";
+
+    async function getAccessToken() {
+        const result = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
+            },
+            body: 'grant_type=client_credentials'
+        });
+
+        const data = await result.json();
+        return data.access_token;
+    }
+
+    async function search(query) {
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '';
+
+        const token = await getAccessToken();
+
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=5`, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+
+        const data = await response.json();
+        const artists = data.artists.items;
+
+        if (artists.length === 0) {
+            resultsContainer.innerHTML = '<p class="no-results">Nessun risultato trovato.</p>';
+        } else {
+            artists.forEach(artist => {
+                const image = artist.images[0] ? artist.images[0].url : 'https://via.placeholder.com/150';
+
+                const resultCard = document.createElement('div');
+                resultCard.classList.add('card');
+                resultCard.style.width = '18rem';
+                resultCard.innerHTML = `
+                    <img src="${image}" class="card-img-top" alt="${artist.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${artist.name}</h5>
+                        <p class="card-text">Artista</p>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultCard);
+            });
+        }
+    }
+
     document.getElementById('searchForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -127,41 +157,7 @@
             search(query);
         }
     });
-
-    function search(query) {
-        const resultsContainer = document.getElementById('searchResults');
-        resultsContainer.innerHTML = '';
-
-        const simulatedResults = [
-            { type: 'Artista', name: 'Coldplay', image: 'https://via.placeholder.com/300x300' },
-            { type: 'Canzone', name: 'Shape of You', image: 'https://via.placeholder.com/300x300' },
-            { type: 'Playlist', name: 'Chill Hits', image: 'https://via.placeholder.com/300x300' },
-            { type: 'Artista', name: 'Ariana Grande', image: 'https://via.placeholder.com/300x300' },
-            { type: 'Canzone', name: 'Blinding Lights', image: 'https://via.placeholder.com/300x300' },
-        ];
-
-        const filteredResults = simulatedResults.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
-
-        if (filteredResults.length === 0) {
-            resultsContainer.innerHTML = '<p class="no-results">Nessun risultato trovato.</p>';
-        } else {
-            filteredResults.forEach(result => {
-                const resultCard = document.createElement('div');
-                resultCard.classList.add('card');
-                resultCard.style.width = '18rem';
-                resultCard.innerHTML = `
-                    <img src="${result.image}" class="card-img-top" alt="${result.name}">
-                    <div class="card-body">
-                        <h5 class="card-title">${result.name}</h5>
-                        <p class="card-text">${result.type}</p>
-                    </div>
-                `;
-                resultsContainer.appendChild(resultCard);
-            });
-        }
-    }
 </script>
 
-</body>
-</html>
 
+</body>
