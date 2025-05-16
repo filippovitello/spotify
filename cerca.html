@@ -1,163 +1,183 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ricerca Spotify</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJq+9v4s7k5O4F6mGzLPRF0g1xlgRil91CpX5cbUP9VwF3lhkpBs8bp2DcsD" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-        .container {
-            max-width: 800px;
-            margin-top: 80px;
-        }
-        h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .input-group {
-            border-radius: 50px;
-            overflow: hidden;
-        }
-        .form-control {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 20px;
-            font-size: 1.2rem;
-        }
-        .form-control:focus {
-            box-shadow: none;
-            border-color: #1DB954;
-        }
-        .btn-primary {
-            background-color: #1DB954;
-            border: none;
-            padding: 20px;
-            font-size: 1.2rem;
-            border-radius: 0 50px 50px 0;
-        }
-        .btn-primary:hover {
-            background-color: #1ed760;
-        }
-        .card {
-            background-color: #1e1e1e;
-            border: none;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .card img {
-            border-radius: 10px;
-        }
-        .card-body {
-            padding: 15px;
-        }
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-        .card-text {
-            font-size: 0.9rem;
-            color: #B3B3B3;
-        }
-        .no-results {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #B3B3B3;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Top 50 - ViteFy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      padding: 2rem;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .track-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .track-item {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      width: 200px;
+      color: white;
+      text-align: center;
+    }
+    .track-item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .modal-body {
+      background-color: #121212;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Cerca Artisti, Canzoni o Playlist</h2>
+<h1 class="mb-4">Top 50 - Seleziona un Paese</h1>
 
-    <form id="searchForm">
-        <div class="input-group">
-            <input type="text" class="form-control" id="searchQuery" placeholder="Cerca artista, canzone o playlist..." aria-label="Cerca" aria-describedby="searchButton">
-            <button class="btn btn-primary" type="submit" id="searchButton">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </form>
-
-    <div id="searchResults" class="mt-4"></div>
+<div class="mb-3">
+  <button class="btn btn-success" onclick="redirectToSpotifyAuth()">Accedi con Spotify</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka9bE+M0ZTz3cdMOAGHGgqN6fyTkUMFh7rFS0VfFOS6ww8AZ9iA3kmC7q6Qb0Hiw" crossorigin="anonymous"></script>
+<div class="mb-3">
+  <select id="playlistSelect" class="form-select w-50 d-inline-block"></select>
+  <button class="btn btn-primary ms-2" onclick="loadPlaylistTracks()">Mostra Brani</button>
+</div>
 
+<!-- Modal per brani -->
+<div class="modal fade" id="tracksModal" tabindex="-1" aria-labelledby="tracksModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="tracksModalLabel">Top Brani</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="tracksList" class="track-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const clientId = "a947b01f684b4858a58ef96a45a4d33f";
-    const clientSecret = "71519124d1b74be7866ab35c09ab08dc";
+  const clientId = 'a947b01f684b4858a58ef96a45a4d33f';
+  const clientSecret = '71519124d1b74be7866ab35c09ab08dc';
+  const redirectUri = 'http://127.0.0.1:8000/callback';
+  let accessToken = '';
+  const playlistMap = new Map();
 
-    async function getAccessToken() {
-        const result = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret)
-            },
-            body: 'grant_type=client_credentials'
-        });
+  function redirectToSpotifyAuth() {
+    const scope = 'playlist-read-private';
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+    window.location.href = authUrl;
+  }
 
-        const data = await result.json();
-        return data.access_token;
-    }
+  async function getAccessTokenFromCode() {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (!code) return;
 
-    async function search(query) {
-        const resultsContainer = document.getElementById('searchResults');
-        resultsContainer.innerHTML = '';
+    const data = new URLSearchParams();
+    data.append('grant_type', 'authorization_code');
+    data.append('code', code);
+    data.append('redirect_uri', redirectUri);
 
-        const token = await getAccessToken();
-
-        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=5`, {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        });
-
-        const data = await response.json();
-        const artists = data.artists.items;
-
-        if (artists.length === 0) {
-            resultsContainer.innerHTML = '<p class="no-results">Nessun risultato trovato.</p>';
-        } else {
-            artists.forEach(artist => {
-                const image = artist.images[0] ? artist.images[0].url : 'https://via.placeholder.com/150';
-
-                const resultCard = document.createElement('div');
-                resultCard.classList.add('card');
-                resultCard.style.width = '18rem';
-                resultCard.innerHTML = `
-                    <img src="${image}" class="card-img-top" alt="${artist.name}">
-                    <div class="card-body">
-                        <h5 class="card-title">${artist.name}</h5>
-                        <p class="card-text">Artista</p>
-                    </div>
-                `;
-                resultsContainer.appendChild(resultCard);
-            });
-        }
-    }
-
-    document.getElementById('searchForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const query = document.getElementById('searchQuery').value;
-
-        if(query.trim() !== '') {
-            search(query);
-        }
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: data.toString(),
     });
+
+    const result = await response.json();
+    accessToken = result.access_token;
+    await loadToplistsPlaylists();
+  }
+
+  async function loadToplistsPlaylists() {
+    const response = await fetch(
+      'https://api.spotify.com/v1/browse/categories/toplists/playlists?country=IT&limit=50',
+      {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.playlists || !data.playlists.items) {
+      console.error('Dati playlist non validi:', data);
+      return;
+    }
+
+    const select = document.getElementById('playlistSelect');
+    select.innerHTML = '';
+
+    data.playlists.items.forEach(playlist => {
+      if (playlist.name.toLowerCase().includes('top 50')) {
+        const option = document.createElement('option');
+        option.value = playlist.id;
+        option.textContent = playlist.name;
+        select.appendChild(option);
+        playlistMap.set(playlist.id, playlist.name);
+      }
+    });
+  }
+
+  async function loadPlaylistTracks() {
+    const playlistId = document.getElementById('playlistSelect').value;
+    if (!playlistId) return;
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      headers: {
+        'Authorization': 'Bearer ' + accessToken
+      }
+    });
+
+    const data = await response.json();
+
+    const container = document.getElementById('tracksList');
+    container.innerHTML = '';
+
+    data.items.forEach(item => {
+      const track = item.track;
+      const div = document.createElement('div');
+      div.classList.add('track-item');
+
+      const img = document.createElement('img');
+      img.src = track.album.images[0]?.url || '';
+      img.alt = track.name;
+
+      const title = document.createElement('h5');
+      title.textContent = track.name;
+
+      const artists = document.createElement('p');
+      artists.textContent = track.artists.map(a => a.name).join(', ');
+
+      div.appendChild(img);
+      div.appendChild(title);
+      div.appendChild(artists);
+      container.appendChild(div);
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('tracksModal'));
+    modal.show();
+  }
+
+  // Esegui al caricamento
+  (async function init() {
+    if (window.location.search.includes('code=')) {
+      await getAccessTokenFromCode();
+    }
+  })();
 </script>
 
-
 </body>
+</html>
