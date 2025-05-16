@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Spotify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJq+9v4s7k5O4F6mGzLPRF0g1xlgRil91CpX5cbUP9VwF3lhkpBs8bp2DcsD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 100px;
+            padding: 30px;
+            background-color: #181818;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1DB954;
+        }
+        .input-group {
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        .form-control {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.2rem;
+            border-radius: 50px 0 0 50px;
+            transition: all 0.3s ease-in-out;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 10px rgba(29, 185, 84, 0.7);
+            border-color: #1DB954;
+        }
+        .btn-primary {
+            background-color: #1DB954;
+            border: none;
+            padding: 20px;
+            font-size: 1.2rem;
+            border-radius: 0 50px 50px 0;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #1ed760;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+        .card img {
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        .card img:hover {
+            transform: scale(1.1);
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .card-text {
+            font-size: 0.9rem;
+            color: #B3B3B3;
+        }
+        .no-results {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #B3B3B3;
+        }
+        .input-group .form-control, .input-group .btn-primary {
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cerca Artisti, Canzoni o Playlist</h2>
+
+    <form id="searchForm">
+        <div class="input-group">
+            <input type="text" class="form-control" id="searchQuery" placeholder="Cerca artista, canzone o playlist..." aria-label="Cerca" aria-describedby="searchButton">
+            <button class="btn btn-primary" type="submit" id="searchButton">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+
+    <div id="searchResults" class="mt-4"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka9bE+M0ZTz3cdMOAGHGgqN6fyTkUMFh7rFS0VfFOS6ww8AZ9iA3kmC7q6Qb0Hiw" crossorigin="anonymous"></script>
+
+<script>
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const query = document.getElementById('searchQuery').value;
+
+        if(query.trim() !== '') {
+            search(query);
+        }
+    });
+
+    function search(query) {
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '';
+
+        const simulatedResults = [
+            { type: 'Artista', name: 'Coldplay', image: 'https://via.placeholder.com/300x300' },
+            { type: 'Canzone', name: 'Shape of You', image: 'https://via.placeholder.com/300x300' },
+            { type: 'Playlist', name: 'Chill Hits', image: 'https://via.placeholder.com/300x300' },
+            { type: 'Artista', name: 'Ariana Grande', image: 'https://via.placeholder.com/300x300' },
+            { type: 'Canzone', name: 'Blinding Lights', image: 'https://via.placeholder.com/300x300' },
+        ];
+
+        const filteredResults = simulatedResults.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
+
+        if (filteredResults.length === 0) {
+            resultsContainer.innerHTML = '<p class="no-results">Nessun risultato trovato.</p>';
+        } else {
+            filteredResults.forEach(result => {
+                const resultCard = document.createElement('div');
+                resultCard.classList.add('card');
+                resultCard.style.width = '18rem';
+                resultCard.innerHTML = `
+                    <img src="${result.image}" class="card-img-top" alt="${result.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${result.name}</h5>
+                        <p class="card-text">${result.type}</p>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultCard);
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
+
