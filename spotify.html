@@ -1,190 +1,183 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Clone</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: 'Helvetica Neue', sans-serif;
-        }
-        .navbar {
-            background-color: #1db954;
-        }
-        .navbar-brand {
-            font-weight: bold;
-            color: white;
-        }
-        .navbar-nav .nav-link {
-            color: white;
-        }
-        .navbar-nav .nav-link:hover {
-            color: red;
-        }
-        .hero-section {
-            background-image: url('https://www.example.com/your-image.jpg');
-            background-size: cover;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            flex-direction: column;
-        }
-        .hero-section h1 {
-            font-size: 50px;
-            font-weight: bold;
-        }
-        .hero-section p {
-            font-size: 18px;
-        }
-        .song-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .song-item {
-            display: flex;
-            align-items: center;
-            background-color: #282828;
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .song-item:hover {
-            background-color: #3a3a3a;
-        }
-        .song-item img {
-            width: 60px;
-            height: 60px;
-            margin-right: 20px;
-        }
-        .song-item .song-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .song-item .song-info h5 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        .song-item .song-info p {
-            font-size: 14px;
-            color: #b3b3b3;
-        }
-        .player-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1e1e1e;
-            padding: 15px;
-            border-radius: 10px;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-        }
-        .player-controls i {
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .player-controls .progress {
-            width: 50%;
-            margin: 0 20px;
-        }
-        footer {
-            background-color: #121212;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-        }
-        footer a {
-            color: white;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .form-container {
-            background-color: #282828;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Top 50 - ViteFy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      padding: 2rem;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .track-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .track-item {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      width: 200px;
+      color: white;
+      text-align: center;
+    }
+    .track-item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .modal-body {
+      background-color: #121212;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">ViteFy</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Cerca</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">La tua Libreria</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Playlist</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<h1 class="mb-4">Top 50 - Seleziona un Paese</h1>
 
-    <section class="hero-section">
-        <h1 id="artist-name">Benvenuto su Spotify</h1>
-        <p id="artist-genres">Cerca il tuo artista preferito</p>
-        <img id="artist-image" src="" alt="Artist Image" class="img-fluid rounded-circle" style="width: 200px;">
-    </section>
+<div class="mb-3">
+  <button class="btn btn-success" onclick="redirectToSpotifyAuth()">Accedi con Spotify</button>
+</div>
 
-    <div class="container song-list">
-        <div class="song-item">
-            <img src="https://i.scdn.co/image/ab67616d0000b273ab4cb6e68a4d9e51858e56f6" alt="Song Image">
-            <div class="song-info">
-                <h5>Blinding Lights</h5>
-                <p>The Weeknd</p>
-            </div>
-        </div>
-        <div class="song-item">
-            <img src="https://i.scdn.co/image/ab67616d0000b2735e5fe6373727d43c3ba70035" alt="Song Image">
-            <div class="song-info">
-                <h5>Levitating</h5>
-                <p>Dua Lipa</p>
-            </div>
-        </div>
-        <div class="song-item">
-            <img src="https://i.scdn.co/image/ab67616d0000b2737f13f5c4a6c07029f97a1285" alt="Song Image">
-            <div class="song-info">
-                <h5>Peaches</h5>
-                <p>Justin Bieber ft. Daniel Caesar, Giveon</p>
-            </div>
-        </div>
+<div class="mb-3">
+  <select id="playlistSelect" class="form-select w-50 d-inline-block"></select>
+  <button class="btn btn-primary ms-2" onclick="loadPlaylistTracks()">Mostra Brani</button>
+</div>
+
+<!-- Modal per brani -->
+<div class="modal fade" id="tracksModal" tabindex="-1" aria-labelledby="tracksModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="tracksModalLabel">Top Brani</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="tracksList" class="track-list"></div>
+      </div>
     </div>
+  </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const clientId = 'a947b01f684b4858a58ef96a45a4d33f';
+  const clientSecret = '71519124d1b74be7866ab35c09ab08dc';
+  const redirectUri = 'http://127.0.0.1:8000/callback';
+  let accessToken = '';
+  const playlistMap = new Map();
 
+  function redirectToSpotifyAuth() {
+    const scope = 'playlist-read-private';
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+    window.location.href = authUrl;
+  }
 
-    <div class="player-controls">
-        <i class="fas fa-step-backward"></i>
-        <i class="fas fa-play-circle"></i>
-        <i class="fas fa-step-forward"></i>
-        <input type="range" class="progress" value="50" max="100" />
-        <i class="fas fa-volume-up"></i>
-    </div>
+  async function getAccessTokenFromCode() {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (!code) return;
 
-    <footer>
-        <p>&copy; 2025 ViteFy Music </p>
-        <p><a href="#">Privacy</a> | <a href="#">Termini di servizio</a></p>
-    </footer>
+    const data = new URLSearchParams();
+    data.append('grant_type', 'authorization_code');
+    data.append('code', code);
+    data.append('redirect_uri', redirectUri);
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    </script>
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: data.toString(),
+    });
+
+    const result = await response.json();
+    accessToken = result.access_token;
+    await loadToplistsPlaylists();
+  }
+
+  async function loadToplistsPlaylists() {
+    const response = await fetch(
+      'https://api.spotify.com/v1/browse/categories/toplists/playlists?country=IT&limit=50',
+      {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.playlists || !data.playlists.items) {
+      console.error('Dati playlist non validi:', data);
+      return;
+    }
+
+    const select = document.getElementById('playlistSelect');
+    select.innerHTML = '';
+
+    data.playlists.items.forEach(playlist => {
+      if (playlist.name.toLowerCase().includes('top 50')) {
+        const option = document.createElement('option');
+        option.value = playlist.id;
+        option.textContent = playlist.name;
+        select.appendChild(option);
+        playlistMap.set(playlist.id, playlist.name);
+      }
+    });
+  }
+// asasas
+  async function loadPlaylistTracks() {
+    const playlistId = document.getElementById('playlistSelect').value;
+    if (!playlistId) return;
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      headers: {
+        'Authorization': 'Bearer ' + accessToken
+      }
+    });
+
+    const data = await response.json();
+
+    const container = document.getElementById('tracksList');
+    container.innerHTML = '';
+
+    data.items.forEach(item => {
+      const track = item.track;
+      const div = document.createElement('div');
+      div.classList.add('track-item');
+
+      const img = document.createElement('img');
+      img.src = track.album.images[0]?.url || '';
+      img.alt = track.name;
+
+      const title = document.createElement('h5');
+      title.textContent = track.name;
+
+      const artists = document.createElement('p');
+      artists.textContent = track.artists.map(a => a.name).join(', ');
+
+      div.appendChild(img);
+      div.appendChild(title);
+      div.appendChild(artists);
+      container.appendChild(div);
+    });
+
+    const modal = new bootstrap.Modal(document.getElementById('tracksModal'));
+    modal.show();
+  }
+
+  // Esegui al caricamento
+  (async function init() {
+    if (window.location.search.includes('code=')) {
+      await getAccessTokenFromCode();
+    }
+  })();
+</script>
 
 </body>
 </html>
